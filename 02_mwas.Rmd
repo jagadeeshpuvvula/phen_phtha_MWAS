@@ -1,0 +1,132 @@
+---
+title: "02_mwas"
+author: "Puvvula"
+date: "2023-08-01"
+output: pdf_document
+---
+
+#phenol and phthalate dataset
+```{r}
+dat<- read_csv(paste0(analy_dat, "chem_qn_fin.csv")) |>
+  select(-c("b_pb", "bpf", "tcc", "tcs", "mcoch", "m_hi_nch", "m_cpp",
+            "m_ecpp", "m_ehhp", "m_ehp", "m_eohp", "m_np", 
+            "otherstove", "hh_adult", "hh_children", "hh_tot",
+            "moved", "dur_residence", "dist_majhw", "dist_majroad",
+            "stovetype", "stoveuse", "bbquse", "ppghtn", "gesthtn",
+            "preeclamp", "ppgdm", "gestdm", "anemia", "td", "csec", "induce",
+            "memrup", "apgar1", "apgar5"))|>
+  mutate(across(4:29, ~ log10(. + 1))) |>
+  mutate(across(4:29, ~ (. - mean(.)) / sd(.))) |>
+  mutate(across(where(is.character), factor)) |>
+  drop_na(4:41)
+
+mom_dat<- dat|> select(-c(21:29))|> drop_na(2)
+baby_dat<- dat|> select(-c(21:29))|> drop_na(3)
+```
+
+#mom and baby feature tables
+```{r}
+mom_ft<- read_csv(paste0(analy_dat, "mom_ft.csv"))
+baby_ft<- read_csv(paste0(analy_dat, "baby_ft.csv"))
+```
+
+#matching sequence
+```{r}
+match_sequence(mom_dat, mom_ft, "participant_id_mom")
+match_sequence(baby_dat, baby_ft, "participant_id_baby")
+```
+
+#get mwas results
+```{r}
+#mom results
+mwas_lm_loop(feature_table = mom_ft, 
+             exp_cov_data = mom_dat,
+             exposures = names(mom_dat)[4:20],
+             covar = c("bmi", "mom_age", "pgtob", "mom_edu", "mom_race"), 
+             output_folder = "~/Documents/phth_phe_MWAS/result/lm_mwas",
+             mwas_file_name="mom_mwas.csv",
+             cutoff_file_name="mom_fdr_coff.csv")
+
+#baby results
+mwas_lm_loop(feature_table = baby_ft, 
+             exp_cov_data = baby_dat,
+             exposures = names(baby_dat)[4:20],
+             covar = c("bmi", "mom_age", "pgtob", "mom_edu", "mom_race", "totpg", "sex"), 
+             output_folder = "~/Documents/phth_phe_MWAS/result/lm_mwas",
+             mwas_file_name="baby_mwas.csv",
+             cutoff_file_name="baby_fdr_coff.csv")
+```
+
+#validation
+```{r}
+combined_data <- cbind(test=t(as.matrix(mom_ft[130, -1])) , mom_dat) # enter feature position to check
+summary(lm(test ~ x24_dcp + bmi + mom_age + pgtob + mom_edu + mom_race, data=combined_data))
+```
+
+#volcano plots for mwas - linear model results
+```{r}
+data_combined <- bind_mwas_res_from_folder(paste0(result,"lm_mwas")) |>
+  clean_names()
+
+mwas_viz <- data_combined %>%
+  filter(variable %in% c("x24_dcp", "x25_dcp", "bp_3", "bpa", "bps", "e_pb", 
+                         "m_pb", "p_pb", "mecptp", "mehhtp", "monp", "m_bp", 
+                         "m_bz_p", "m_cnp", "m_cop", "m_ep")) %>%
+  mutate(variable = factor(variable, levels = c("x24_dcp", "x25_dcp", "bp_3", "bpa", "bps", "e_pb", 
+                                                "m_pb", "p_pb", "mecptp", "mehhtp", "monp", "m_bp", 
+                                                "m_bz_p", "m_cnp", "m_cop", "m_ep")),
+         variable = fct_recode(variable,
+                               `2,4-DCP` = "x24_dcp",
+                               `2,5-DCP` = "x25_dcp",
+                               `BP-3` = "bp_3",
+                               `BPA` = "bpa",
+                               `BPS` = "bps",
+                               `E-PB` = "e_pb",
+                               `M-PB` = "m_pb",
+                               `P-PB` = "p_pb",
+                               `MECPTP` = "mecptp",
+                               `MEHHTP` = "mehhtp",
+                               `MONP` = "monp",
+                               `mBP` = "m_bp",
+                               `mBzP` = "m_bz_p",
+                               `mCNP` = "m_cnp",
+                               `mCOP` = "m_cop",
+                               `mEP` = "m_ep"),
+         set = fct_recode(set, `Maternal`="mom", `Newborn`="newborn"),
+         beta_dir = factor(beta_dir, levels = c("positive-significant", "negative-significant",
+                                                "positive-non_significant", "negative-non_significant")))
+```
+
+```{r}
+ggplot(mwas_viz, aes(x = estimate, y = -log10(pr_t), color = beta_dir)) +
+  geom_point(size = 0.2) +
+  scale_x_continuous(name = "Adjusted beta coefficient per unit change in log-exposure level",
+                     labels = c(-0.4, 0, 0.4), breaks = c(-0.4, 0, 0.4)) +
+  scale_y_continuous(name = "-log10(P-value)", labels = scales::comma) +
+  facet_grid(set ~ factor(variable), scales = "free", switch = "y") +
+  theme_bw() +
+  theme(axis.text = element_text(size = 11), 
+        axis.title = element_text(size = 11),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        legend.position = "bottom", # set legend position to bottom
+        legend.box = "horizontal",
+        axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.25),
+        strip.background = element_blank(),
+        strip.text = element_text(size=11, face = "bold"),
+        panel.spacing = unit(0.05, "lines"),
+        strip.placement = "outside") + 
+  labs(color = "Beta direction") +
+  scale_color_manual(values = c("positive-significant" = "blue",
+                                "negative-significant" = "red",
+                                "positive-non_significant" = "grey",
+                                "negative-non_significant" = "grey"))+
+  guides(color = guide_legend(override.aes = list(size = 5)))
+```
+
+#save plot
+```{r}
+ggsave(paste0(result, "lm_mwas/lm_volcano.tiff"),
+       dpi=300, height = 7, width = 14)
+```
+
