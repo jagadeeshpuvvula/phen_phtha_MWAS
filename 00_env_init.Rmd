@@ -1,0 +1,27 @@
+---
+title: "00_env"
+author: "Puvvula"
+date: "2023-08-01"
+output: pdf_document
+---
+
+#library and r env
+```{r}
+library(pacman)
+pacman::p_load(tidyverse, janitor, stringr,  haven, skimr, readr, 
+               reshape2, kableExtra, gridExtra)
+
+#for pathway analysis only - conflicts with tidyverse
+#pacman::p_load(MetaboAnalystR, fitdistrplus, RJSONIO)
+
+# Call the function to print the version information
+print_version_info()
+```
+
+#folder locations
+```{r}
+data <- "~/Documents/phth_phe_MWAS/data/"
+result<- "~/Documents/phth_phe_MWAS/result/"
+analy_dat<- "~/Documents/phth_phe_MWAS/analy_dat/"
+```
+
