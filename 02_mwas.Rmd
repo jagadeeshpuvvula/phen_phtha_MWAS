@@ -91,15 +91,13 @@ mwas_viz <- data_combined %>%
                                `MCOP` = "m_cop",
                                `mCNP` = "m_cnp"),
          set = fct_recode(set, `Maternal`="mom", `Newborn`="newborn"),
-         beta_dir = factor(beta_dir, levels = c("positive-significant", "negative-significant",
-                                                "positive-non_significant", "negative-non_significant")),
          fdr_beta_dir = case_when(
            fdr < 0.2 & estimate > 0 ~ "positive-significant",
            fdr < 0.2 & estimate < 0 ~ "negative-significant",
            fdr > 0.2 & estimate > 0 ~ "positive-non_significant",
            fdr > 0.2 & estimate < 0 ~ "negative-non_significant", TRUE ~ NA_character_))
 
-
+write_csv(mwas_viz, paste0(result, "lm_mwas/lm_results_combined.csv"))
 ```
 
 ```{r}
