@@ -69,38 +69,43 @@ data_combined <- bind_mwas_res_from_folder(paste0(result,"lm_mwas")) |>
   clean_names()
 
 mwas_viz <- data_combined %>%
-  filter(variable %in% c("x24_dcp", "x25_dcp", "bp_3", "bpa", "bps", "e_pb", 
-                         "m_pb", "p_pb", "mecptp", "mehhtp", "monp", "m_bp", 
-                         "m_bz_p", "m_cnp", "m_cop", "m_ep")) %>%
-  mutate(variable = factor(variable, levels = c("x24_dcp", "x25_dcp", "bp_3", "bpa", "bps", "e_pb", 
-                                                "m_pb", "p_pb", "mecptp", "mehhtp", "monp", "m_bp", 
-                                                "m_bz_p", "m_cnp", "m_cop", "m_ep")),
+  filter(variable %in% c("x24_dcp", "x25_dcp", "bp_3", "bpa", "bps", 
+                         "m_ep", "m_bp", "mi_bp", "m_bz_p",
+                         "monp", "m_cop",
+                         "m_cnp")) |>
+  mutate(variable = factor(variable, levels = c("x24_dcp", "x25_dcp", "bp_3", "bpa", "bps", 
+                                                "m_ep", "m_bp", "mi_bp", "m_bz_p",
+                                                "monp", "m_cop",
+                                                "m_cnp")),
          variable = fct_recode(variable,
                                `2,4-DCP` = "x24_dcp",
                                `2,5-DCP` = "x25_dcp",
                                `BP-3` = "bp_3",
-                               `BPA` = "bpa",
-                               `BPS` = "bps",
-                               `E-PB` = "e_pb",
-                               `M-PB` = "m_pb",
-                               `P-PB` = "p_pb",
-                               `MECPTP` = "mecptp",
-                               `MEHHTP` = "mehhtp",
+                               `BP-A` = "bpa",
+                               `BP-S` = "bps",
+                               `MEP` = "m_ep",
+                               `MBP` = "m_bp",
+                               `MiBP` = "mi_bp",
+                               `MBzP` = "m_bz_p",
                                `MONP` = "monp",
-                               `mBP` = "m_bp",
-                               `mBzP` = "m_bz_p",
-                               `mCNP` = "m_cnp",
-                               `mCOP` = "m_cop",
-                               `mEP` = "m_ep"),
+                               `MCOP` = "m_cop",
+                               `mCNP` = "m_cnp"),
          set = fct_recode(set, `Maternal`="mom", `Newborn`="newborn"),
          beta_dir = factor(beta_dir, levels = c("positive-significant", "negative-significant",
-                                                "positive-non_significant", "negative-non_significant")))
+                                                "positive-non_significant", "negative-non_significant")),
+         fdr_beta_dir = case_when(
+           fdr < 0.2 & estimate > 0 ~ "positive-significant",
+           fdr < 0.2 & estimate < 0 ~ "negative-significant",
+           fdr > 0.2 & estimate > 0 ~ "positive-non_significant",
+           fdr > 0.2 & estimate < 0 ~ "negative-non_significant", TRUE ~ NA_character_))
+
+
 ```
 
 ```{r}
-ggplot(mwas_viz, aes(x = estimate, y = -log10(pr_t), color = beta_dir)) +
-  geom_point(size = 0.2) +
-  scale_x_continuous(name = "Adjusted beta coefficient per unit change in log-exposure level",
+ggplot(mwas_viz, aes(x = estimate, y = -log10(pr_t), color = fdr_beta_dir)) +
+  geom_point(size = 0.25) +
+  scale_x_continuous(name = "Adjusted beta coefficient per unit change in maternal urinary biomarker concentrations (log10 scale)",
                      labels = c(-0.4, 0, 0.4), breaks = c(-0.4, 0, 0.4)) +
   scale_y_continuous(name = "-log10(P-value)", labels = scales::comma) +
   facet_grid(set ~ factor(variable), scales = "free", switch = "y") +
@@ -117,10 +122,10 @@ ggplot(mwas_viz, aes(x = estimate, y = -log10(pr_t), color = beta_dir)) +
         panel.spacing = unit(0.05, "lines"),
         strip.placement = "outside") + 
   labs(color = "Beta direction") +
-  scale_color_manual(values = c("positive-significant" = "blue",
-                                "negative-significant" = "red",
-                                "positive-non_significant" = "grey",
-                                "negative-non_significant" = "grey"))+
+  scale_color_manual(values = c("positive-significant" = "royalblue",
+                                "negative-significant" = "#D55E00",
+                                "positive-non_significant" = "grey85",
+                                "negative-non_significant" = "grey85"))+
   guides(color = guide_legend(override.aes = list(size = 5)))
 ```
 
@@ -128,5 +133,15 @@ ggplot(mwas_viz, aes(x = estimate, y = -log10(pr_t), color = beta_dir)) +
 ```{r}
 ggsave(paste0(result, "lm_mwas/lm_volcano.tiff"),
        dpi=300, height = 7, width = 14)
+```
+
+#summary of MWAS table
+```{r}
+summary<- mwas_viz |>
+  group_by(fdr_beta_dir, variable, set) |>
+  summarize(summary = paste0(n(), " (", scales::percent(n() / 17064, accuracy=0.001), ")")) |>
+  pivot_wider(names_from = c(fdr_beta_dir, set), values_from = summary)
+
+write_csv(summary, paste0(result, "lm_mwas/lm_summary.csv"))
 ```
 
