@@ -1,0 +1,30 @@
+---
+title: "03_enrichment_analysis"
+author: "Puvvula"
+date: "2024-01-05"
+output: pdf_document
+---
+
+#data prep for enrichment analysis
+```{r}
+dat<- read_csv(paste0(result, "lm_mwas/lm_results_combined.csv")) |>
+  separate(mz_rt_mode, into = c("m.z", "r.t", "mode"), sep = "_") |>
+  select(-c(4:7)) |>
+  rename(p.value = fdr)
+```
+
+#split data into multiple batches for enrichment
+```{r}
+split_and_export(data= dat,
+                 variables = c("variable", "set"),
+                 export_location = "~/Documents/phth_phe_MWAS/result/enrich_exp/")
+```
+
+#perform enrichment analysis
+```{r}
+
+```
+
+
+
+
