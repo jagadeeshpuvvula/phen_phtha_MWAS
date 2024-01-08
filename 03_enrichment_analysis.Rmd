@@ -9,8 +9,7 @@ output: pdf_document
 ```{r}
 dat<- read_csv(paste0(result, "lm_mwas/lm_results_combined.csv")) |>
   separate(mz_rt_mode, into = c("m.z", "r.t", "mode"), sep = "_") |>
-  select(-c(4:7)) |>
-  rename(p.value = fdr)
+  rename(p.value = pr_t)
 ```
 
 #split data into multiple batches for enrichment
@@ -20,9 +19,35 @@ split_and_export(data= dat,
                  export_location = "~/Documents/phth_phe_MWAS/result/enrich_exp/")
 ```
 
+```{r}
+library(pacman)
+pacman::p_load(tidyverse, janitor, stringr, MetaboAnalystR, fitdistrplus, RJSONIO)
+```
+
+#CUSTOM ADDUCTS
+```{r}
+add.vec <- c("M+FA-H [1-]","M-H [1-]","2M-H [1-]","M-H+O [1-]","M(C13)-H [1-]",
+             "2M+FA-H [1-]","M-3H [3-]","M-2H [2-]","M+ACN-H [1-]",
+             "M+HCOO [1-]","M+CH3COO [1-]","M-H2O-H [1-]","M [1+]","M+H [1+]",
+             "M+2H [2+]","M+3H [3+]","M+H2O+H [1+]","M-H2O+H [1+]",
+             "M(C13)+H [1+]","M(C13)+2H [2+]","M(C13)+3H [3+]","M-NH3+H [1+]",
+             "M+ACN+H [1+]","M+ACN+2H [2+]","M+2ACN+2H [2+]","M+3ACN+2H [2+]",
+             "M+NH4 [1+]","M+H+NH4 [2+]","2M+H [1+]","2M+ACN+H [1+]")
+```
+
 #perform enrichment analysis
 ```{r}
+runMummichog(input_folder= "~/Documents/phth_phe_MWAS/result/enrich_exp",
+             #p_val_cutoff= 0.2,
+             pick_500 = TRUE,
+             output_folder= "~/Documents/phth_phe_MWAS/result/enrich_imp")
+```
 
+#Enrichment analysis figure
+#https://omicsforum.ca/t/which-p-value-from-mummichog/2036
+```{r}
+enrich_data <- combine_csv_files("~/Documents/phth_phe_MWAS/result/enrich_imp")
+write_csv(enrich_data, "~/Documents/phth_phe_MWAS/result/enrich_results_combined.csv")
 ```
 
 
