@@ -1,0 +1,84 @@
+---
+title: "04_enrichment_figs"
+author: "Puvvula"
+date: "2024-01-08"
+output: pdf_document
+---
+
+```{r}
+dat<- read_csv("~/Documents/phth_phe_MWAS/result/enrich_results_combined.csv") |>
+  clean_names() |>
+  rename(p_gamma = "gamma", 
+         pathway = "x") |>
+  filter(p_gamma < 0.05) |>
+  mutate(logp = -log10(p_gamma), enrichment = hits_sig/expected) |>
+  mutate(enrichment_disc = cut(enrichment, breaks = seq(0, 10, by = 2), 
+                                 labels = c("< 2", "2 - <4", "4 - <6",
+                                            "6 - <8", "8 - 10"))) |>
+  filter(pathway_total > 3) |>
+  filter((chemical == "BP-A" & mom_baby %in% c("Maternal", "Newborn")) |
+         (chemical == "BP-S" & mom_baby == "Maternal") |
+         (chemical == "2,5-DCP" & mom_baby == "Newborn") |
+         (chemical == "MBP" & mom_baby == "Newborn") |
+         (chemical == "MiBP" & mom_baby == "Maternal") |
+         (chemical == "MBzP" & mom_baby == "Newborn")
+         ) |>
+  mutate(group = case_when(
+    grepl("Vitamin|Ubiquinone|porphyrin", pathway, ignore.case = TRUE) ~ "Vitamin",
+    grepl("fatty acid|Arachidonic|Carnitine|Phytanic|Glycerophospholipid|Linoleate", pathway, ignore.case = TRUE) ~ "Fatty acid",
+    grepl("Pyrimidine|Purine", pathway, ignore.case = TRUE) ~ "Nucleotide",
+    grepl("Methionine|Glutamate|Glycine|Beta-Alanine|Arginine|Glutathione|Aspartate|Lysine|Tyrosine|Alanine|Tryptophan|Histidine|Valine", 
+          pathway, ignore.case = TRUE) ~ "Amino acid",
+    grepl("Propanoate|C5-Branched|Starch|Pyruvate|Glycolysis|TCA|Starch|Pyruvate|Butanoate|Glyoxylate", 
+          pathway, ignore.case = TRUE) ~ "Carbohydrate",
+    grepl("Glycosphingolipid|Chondroitin|keratan|Heparan|Glycosphingolipid|N-Glycan|O-Glycan|Glycosphingolipid|Glycosphingolipid|Glycosphingolipid|N-Glycan||Chondroitin", 
+          pathway, ignore.case = TRUE) ~ "Glycan",
+    grepl("Nitrogen|Carbon|Nitrogen", pathway, ignore.case = TRUE) ~ "Energy",
+    grepl("Galactose|Fructose|Pentose", pathway, ignore.case = TRUE) ~ "Sugar",
+    TRUE ~ "other"
+  ))
+
+dat$group<- factor(dat$group, levels = c("Vitamin", "Amino acid", "Carbohydrate", "Glycan","Sugar", "Fatty acid", "Energy", "Nucleotide"))
+```
+
+```{r}
+dat|>
+  ggplot(aes(x = factor(chemical, levels = c("2,5-DCP", 
+                                             "BP-A", "BP-S",
+                                             "MBP", "MiBP", "MBzP")), 
+             y = pathway)) + 
+  geom_tile(aes(fill = factor(enrichment_disc)), color = "black") +
+  scale_color_viridis(discrete = TRUE) +
+  xlab("") +
+  ylab("") +
+  theme_bw() +
+  theme(axis.text=element_text(size=10), 
+        axis.title=element_text(size=10,face="bold"),
+        strip.text = element_text(size=10),
+        legend.text=element_text(size=10),
+        legend.title=element_text(size=10),
+        legend.position="bottom",
+        legend.justification="right",
+        legend.box="horizontal",
+        legend.box.just="center",
+        legend.margin=margin(t=0.1, r=0.1, b=2, l=0.1),
+        panel.grid.minor = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank(),
+        axis.text.x = element_text(angle = 0, hjust = 0.5, vjust = 1, size = 10),
+        axis.text.y = element_text(size = 10), 
+        panel.spacing.x=unit(0.8, "lines"),
+        panel.spacing.y=unit(0.02, "lines"),
+        strip.text.y = element_blank()
+        )+
+  guides(fill = guide_legend(nrow = 1))+
+  facet_grid(group~ mom_baby, scales = "free", switch = "y", space = "free")+
+  labs(fill = "Enrichment factor")
+```
+
+```{r}
+ggsave("~/Documents/phth_phe_MWAS/result/pathway_enrich.tiff", 
+       width = 8, height = 12, dpi=300)
+```
+
+
