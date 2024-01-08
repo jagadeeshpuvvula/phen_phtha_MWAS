@@ -8,8 +8,9 @@ output: pdf_document
 #library and r env
 ```{r}
 library(pacman)
-pacman::p_load(tidyverse, janitor, stringr,  haven, skimr, readr, 
-               reshape2, kableExtra, gridExtra)
+pacman::p_load(tidyverse, janitor, stringr,  haven, skimr, readr, viridis,
+               reshape2, kableExtra, gridExtra, stringr, MetaboAnalystR, 
+               fitdistrplus, RJSONIO)
 
 #for pathway analysis only - conflicts with tidyverse
 #pacman::p_load(MetaboAnalystR, fitdistrplus, RJSONIO)
