@@ -81,4 +81,159 @@ ggsave("~/Documents/phth_phe_MWAS/result/pathway_enrich.tiff",
        width = 8, height = 12, dpi=300)
 ```
 
+#Pathway overlap plots - data prep
+```{r}
+dat_olap <- dat |>
+  unite(filename, chemical, mom_baby, sep = " ") |>
+  dplyr::select(pathway, filename) |>
+  distinct(pathway, filename, .keep_all=TRUE) |>
+  unnest(cols = filename) |>
+  mutate(GenreMember=1) |>
+  pivot_wider(names_from = filename, values_from = GenreMember, values_fill = list(GenreMember = 0)) |>
+  as.data.frame() |>
+  dplyr::select(`2,5-DCP Newborn`, 
+                `BP-A Newborn`, 
+                `MBP Newborn`, 
+                `MBzP Newborn`,
+                `BP-A Maternal`, 
+                `BP-S Maternal`, 
+                `MiBP Maternal`)
+```
+
+#overlap plots
+```{r}
+upset(dat_olap, 
+      keep.order = TRUE,
+      nsets = 20,
+      sets.bar.color = c("#0072B2", "#0072B2", "#0072B2", "#0072B2", "#E69F00", "#E69F00", "#E69F00"),
+      sets = c("2,5-DCP Newborn", "BP-A Newborn", "MBP Newborn", "MBzP Newborn", "BP-A Maternal", "BP-S Maternal", "MiBP Maternal"),
+      set_size.show = TRUE,
+      text.scale = 1.5, point.size = 4, line.size = 1,
+      mainbar.y.max = 8,
+      set_size.scale_max = 73,
+      mainbar.y.label="No.of pathways \noverlapped across chemical biomarkers",
+      sets.x.label="Total no.of \naltered pathways")
+```
+
+#=============================================================================#
+#=============================================================================#
+#Pathway overlap plots - data prep
+```{r}
+dat_olap_crazy <- dat |>
+  unite(filename, chemical, mom_baby, group, sep = " ") |>
+  dplyr::select(pathway, filename) |>
+  distinct(pathway, filename, .keep_all=TRUE) |>
+  unnest(cols = filename) |>
+  mutate(GenreMember=1) |>
+  pivot_wider(names_from = filename, values_from = GenreMember, values_fill = list(GenreMember = 0)) |>
+  as.data.frame() |>
+  dplyr::select(`2,5-DCP Newborn Carbohydrate`,
+`2,5-DCP Newborn Amino acid`,
+`2,5-DCP Newborn Glycan`,
+`2,5-DCP Newborn Vitamin`,
+`2,5-DCP Newborn Nucleotide`,
+`2,5-DCP Newborn Fatty acid`,
+`BP-A Maternal Vitamin`,
+`BP-A Maternal Glycan`,
+`BP-A Maternal Amino acid`,
+`BP-A Maternal Fatty acid`,
+`BP-A Maternal Nucleotide`,
+`BP-A Maternal Carbohydrate`,
+`BP-A Newborn Glycan`,
+`BP-A Newborn Carbohydrate`,
+`BP-A Newborn Fatty acid`,
+`BP-A Newborn Amino acid`,
+`BP-A Newborn Vitamin`,
+`BP-A Newborn Nucleotide`,
+`BP-S Maternal Glycan`,
+`BP-S Maternal Amino acid`,
+`BP-S Maternal Nucleotide`,
+`BP-S Maternal Vitamin`,
+`BP-S Maternal Fatty acid`,
+`BP-S Maternal Carbohydrate`,
+`MBP Newborn Amino acid`,
+`MBP Newborn Glycan`,
+`MBP Newborn Vitamin`,
+`MBP Newborn Carbohydrate`,
+`MBP Newborn Fatty acid`,
+`MBzP Newborn Glycan`,
+`MBzP Newborn Vitamin`,
+`MBzP Newborn Amino acid`,
+`MBzP Newborn Fatty acid`,
+`MBzP Newborn Carbohydrate`,
+`MBzP Newborn Nucleotide`,
+`MiBP Maternal Amino acid`,
+`MiBP Maternal Glycan`,
+`MiBP Maternal Carbohydrate`,
+`MiBP Maternal Vitamin`,
+`MiBP Maternal Nucleotide`,
+`MiBP Maternal Fatty acid`
+)
+```
+
+#overlap plots
+```{r}
+upset(dat_olap_crazy, 
+      keep.order = TRUE,
+      nsets = 10,
+      sets.bar.color = c("#0072B2", "#0072B2", "#0072B2", "#0072B2","#0072B2", 
+                         "#E69F00", "#E69F00", "#E69F00", "#E69F00", "#E69F00", "#E69F00",
+                         "#009E73","#009E73","#009E73","#009E73","#009E73","#009E73",
+                         "#56B4E9","#56B4E9","#56B4E9","#56B4E9","#56B4E9","#56B4E9",
+                         "#FFD700","#FFD700","#FFD700","#FFD700","#FFD700","#FFD700",
+                         "#FFA07A","#FFA07A","#FFA07A","#FFA07A","#FFA07A","#FFA07A",
+                         "#9370DB", "#9370DB", "#9370DB", "#9370DB", "#9370DB","#9370DB"
+                         ),
+      sets = c("2,5-DCP Newborn Carbohydrate",
+               "2,5-DCP Newborn Amino acid",
+               "2,5-DCP Newborn Glycan",
+               "2,5-DCP Newborn Vitamin",
+               "2,5-DCP Newborn Nucleotide",
+               "2,5-DCP Newborn Fatty acid",
+"BP-A Maternal Vitamin",
+"BP-A Maternal Glycan",
+"BP-A Maternal Amino acid",
+"BP-A Maternal Fatty acid",
+"BP-A Maternal Nucleotide",
+"BP-A Maternal Carbohydrate",
+"BP-A Newborn Glycan",
+"BP-A Newborn Carbohydrate",
+"BP-A Newborn Fatty acid",
+"BP-A Newborn Amino acid",
+"BP-A Newborn Vitamin",
+"BP-A Newborn Nucleotide",
+"BP-S Maternal Glycan",
+"BP-S Maternal Amino acid",
+"BP-S Maternal Nucleotide",
+"BP-S Maternal Vitamin",
+"BP-S Maternal Fatty acid",
+"BP-S Maternal Carbohydrate",
+"MBP Newborn Amino acid",
+"MBP Newborn Glycan",
+"MBP Newborn Vitamin",
+"MBP Newborn Carbohydrate",
+"MBP Newborn Fatty acid",
+"MBzP Newborn Glycan",
+"MBzP Newborn Vitamin",
+"MBzP Newborn Amino acid",
+"MBzP Newborn Fatty acid",
+"MBzP Newborn Carbohydrate",
+"MBzP Newborn Nucleotide",
+"MiBP Maternal Amino acid",
+"MiBP Maternal Glycan",
+"MiBP Maternal Carbohydrate",
+"MiBP Maternal Vitamin",
+"MiBP Maternal Nucleotide",
+"MiBP Maternal Fatty acid"
+),
+      set_size.show = TRUE,
+      text.scale = 1.5, point.size = 4, line.size = 1,
+      mainbar.y.max = 6,
+      set_size.scale_max = 40,
+      mainbar.y.label="No.of pathways \noverlapped across chemical biomarkers",
+      sets.x.label="Total no.of \naltered pathways")
+```
+
+
+
 
