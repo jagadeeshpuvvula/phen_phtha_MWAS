@@ -5,8 +5,9 @@ date: "2024-01-08"
 output: pdf_document
 ---
 
+#read merged pathway analysis results
 ```{r}
-dat<- read_csv("~/Documents/phth_phe_MWAS/result/enrich_results_combined.csv") |>
+dat <- read_csv("~/Documents/phth_phe_MWAS/result/enrich_results_combined.csv") |>
   clean_names() |>
   rename(p_gamma = "gamma", 
          pathway = "x") |>
@@ -22,25 +23,28 @@ dat<- read_csv("~/Documents/phth_phe_MWAS/result/enrich_results_combined.csv") |
          (chemical == "MBP" & mom_baby == "Newborn") |
          (chemical == "MiBP" & mom_baby == "Maternal") |
          (chemical == "MBzP" & mom_baby == "Newborn")
-         ) |>
-  mutate(group = case_when(
-    grepl("Vitamin|Ubiquinone|porphyrin", pathway, ignore.case = TRUE) ~ "Vitamin",
-    grepl("fatty acid|Arachidonic|Carnitine|Phytanic|Glycerophospholipid|Linoleate", pathway, ignore.case = TRUE) ~ "Fatty acid",
-    grepl("Pyrimidine|Purine", pathway, ignore.case = TRUE) ~ "Nucleotide",
-    grepl("Methionine|Glutamate|Glycine|Beta-Alanine|Arginine|Glutathione|Aspartate|Lysine|Tyrosine|Alanine|Tryptophan|Histidine|Valine", 
-          pathway, ignore.case = TRUE) ~ "Amino acid",
-    grepl("Propanoate|C5-Branched|Starch|Pyruvate|Glycolysis|TCA|Starch|Pyruvate|Butanoate|Glyoxylate", 
-          pathway, ignore.case = TRUE) ~ "Carbohydrate",
-    grepl("Glycosphingolipid|Chondroitin|keratan|Heparan|Glycosphingolipid|N-Glycan|O-Glycan|Glycosphingolipid|Glycosphingolipid|Glycosphingolipid|N-Glycan||Chondroitin", 
-          pathway, ignore.case = TRUE) ~ "Glycan",
-    grepl("Nitrogen|Carbon|Nitrogen", pathway, ignore.case = TRUE) ~ "Energy",
-    grepl("Galactose|Fructose|Pentose", pathway, ignore.case = TRUE) ~ "Sugar",
-    TRUE ~ "other"
-  ))
-
-dat$group<- factor(dat$group, levels = c("Vitamin", "Amino acid", "Carbohydrate", "Glycan","Sugar", "Fatty acid", "Energy", "Nucleotide"))
+         )
 ```
 
+#add KEGG supergroups to the pathway analysis results
+```{r}
+# Applying the function to your dataset
+dat <- assignGroup(dat, 
+                     pathway_column = "pathway", 
+                     pathways = pathways)
+```
+
+#define sequence of the KEGG supergroups
+```{r}
+dat$group<- factor(dat$group, levels = c( "amino acid", "Carbohydrate",
+                                          "Glycan", "Lipid",
+                                          "Cofactors_vitamins",
+                                          "Energy",
+                                          "Nucleotide", "Other_secondary_metabolites", "Terpenoids_polyketides",
+                                          "Xenobiotics", "other"))
+```
+
+#pathway heatmap - Plot
 ```{r}
 dat|>
   ggplot(aes(x = factor(chemical, levels = c("2,5-DCP", 
@@ -78,7 +82,7 @@ dat|>
 
 ```{r}
 ggsave("~/Documents/phth_phe_MWAS/result/pathway_enrich.tiff", 
-       width = 8, height = 12, dpi=300)
+       width = 8, height = 14, dpi=300)
 ```
 
 #Pathway overlap plots - data prep
@@ -128,46 +132,47 @@ dat_olap_crazy <- dat |>
   pivot_wider(names_from = filename, values_from = GenreMember, values_fill = list(GenreMember = 0)) |>
   as.data.frame() |>
   dplyr::select(`2,5-DCP Newborn Carbohydrate`,
-`2,5-DCP Newborn Amino acid`,
+`2,5-DCP Newborn amino acid`,
+`2,5-DCP Newborn Other_secondary_metabolites`,
+`2,5-DCP Newborn Cofactors_vitamins`,
 `2,5-DCP Newborn Glycan`,
-`2,5-DCP Newborn Vitamin`,
 `2,5-DCP Newborn Nucleotide`,
-`2,5-DCP Newborn Fatty acid`,
-`BP-A Maternal Vitamin`,
-`BP-A Maternal Glycan`,
-`BP-A Maternal Amino acid`,
-`BP-A Maternal Fatty acid`,
-`BP-A Maternal Nucleotide`,
+`2,5-DCP Newborn Energy`,
+`2,5-DCP Newborn Xenobiotics`,
+`2,5-DCP Newborn Lipid`,
+`BP-A Maternal Cofactors_vitamins`,
 `BP-A Maternal Carbohydrate`,
-`BP-A Newborn Glycan`,
+`BP-A Maternal amino acid`,
+`BP-A Maternal Lipid`,
+`BP-A Maternal Nucleotide`,
+`BP-A Maternal Glycan`,
+`BP-A Maternal Energy`,
+`BP-A Maternal Other_secondary_metabolites`,
+`BP-A Maternal Xenobiotics`,
+`BP-A Newborn Xenobiotics`,
 `BP-A Newborn Carbohydrate`,
-`BP-A Newborn Fatty acid`,
-`BP-A Newborn Amino acid`,
-`BP-A Newborn Vitamin`,
+`BP-A Newborn Lipid`,
+`BP-A Newborn Terpenoids_polyketides`,
+`BP-A Newborn amino acid`,
+`BP-A Newborn Glycan`,
+`BP-A Newborn Cofactors_vitamins`,
 `BP-A Newborn Nucleotide`,
-`BP-S Maternal Glycan`,
-`BP-S Maternal Amino acid`,
+`BP-A Newborn Other_secondary_metabolites`,
+`BP-A Newborn Energy`,
+`BP-S Maternal amino acid`,
+`BP-S Maternal Energy`,
 `BP-S Maternal Nucleotide`,
-`BP-S Maternal Vitamin`,
-`BP-S Maternal Fatty acid`,
+`BP-S Maternal Cofactors_vitamins`,
+`BP-S Maternal Glycan`,
+`BP-S Maternal Lipid`,
 `BP-S Maternal Carbohydrate`,
-`MBP Newborn Amino acid`,
-`MBP Newborn Glycan`,
-`MBP Newborn Vitamin`,
+`BP-S Maternal Other_secondary_metabolites`,
+`MBP Newborn amino acid`,
 `MBP Newborn Carbohydrate`,
-`MBP Newborn Fatty acid`,
-`MBzP Newborn Glycan`,
-`MBzP Newborn Vitamin`,
-`MBzP Newborn Amino acid`,
-`MBzP Newborn Fatty acid`,
-`MBzP Newborn Carbohydrate`,
-`MBzP Newborn Nucleotide`,
-`MiBP Maternal Amino acid`,
-`MiBP Maternal Glycan`,
-`MiBP Maternal Carbohydrate`,
-`MiBP Maternal Vitamin`,
-`MiBP Maternal Nucleotide`,
-`MiBP Maternal Fatty acid`
+`MBP Newborn Cofactors_vitamins`,
+`MBP Newborn Lipid`,
+`MBP Newborn Xenobiotics`,
+`MBP Newborn Other_secondary_metabolites`
 )
 ```
 
@@ -175,61 +180,61 @@ dat_olap_crazy <- dat |>
 ```{r}
 upset(dat_olap_crazy, 
       keep.order = TRUE,
-      nsets = 10,
-      sets.bar.color = c("#0072B2", "#0072B2", "#0072B2", "#0072B2","#0072B2", 
-                         "#E69F00", "#E69F00", "#E69F00", "#E69F00", "#E69F00", "#E69F00",
-                         "#009E73","#009E73","#009E73","#009E73","#009E73","#009E73",
-                         "#56B4E9","#56B4E9","#56B4E9","#56B4E9","#56B4E9","#56B4E9",
-                         "#FFD700","#FFD700","#FFD700","#FFD700","#FFD700","#FFD700",
-                         "#FFA07A","#FFA07A","#FFA07A","#FFA07A","#FFA07A","#FFA07A",
-                         "#9370DB", "#9370DB", "#9370DB", "#9370DB", "#9370DB","#9370DB"
-                         ),
+      nsets = 4,
+      sets.bar.color = c(
+        rep("#0072B2", 9),
+        rep("#E69F00", 10),
+        rep("#009E73", 6),
+        rep("#56B4E9", 9),#
+        rep("#FFD700", 8)
+        ),
       sets = c("2,5-DCP Newborn Carbohydrate",
-               "2,5-DCP Newborn Amino acid",
-               "2,5-DCP Newborn Glycan",
-               "2,5-DCP Newborn Vitamin",
-               "2,5-DCP Newborn Nucleotide",
-               "2,5-DCP Newborn Fatty acid",
-"BP-A Maternal Vitamin",
-"BP-A Maternal Glycan",
-"BP-A Maternal Amino acid",
-"BP-A Maternal Fatty acid",
-"BP-A Maternal Nucleotide",
-"BP-A Maternal Carbohydrate",
-"BP-A Newborn Glycan",
+"2,5-DCP Newborn amino acid",
+"2,5-DCP Newborn Other_secondary_metabolites",
+"2,5-DCP Newborn Cofactors_vitamins",
+"2,5-DCP Newborn Glycan",
+"2,5-DCP Newborn Nucleotide",
+"2,5-DCP Newborn Energy",
+"2,5-DCP Newborn Xenobiotics",
+"2,5-DCP Newborn Lipid",
+"BP-A Newborn Xenobiotics",
 "BP-A Newborn Carbohydrate",
-"BP-A Newborn Fatty acid",
-"BP-A Newborn Amino acid",
-"BP-A Newborn Vitamin",
+"BP-A Newborn Lipid",
+"BP-A Newborn Terpenoids_polyketides",
+"BP-A Newborn amino acid",
+"BP-A Newborn Glycan",
+"BP-A Newborn Cofactors_vitamins",
 "BP-A Newborn Nucleotide",
-"BP-S Maternal Glycan",
-"BP-S Maternal Amino acid",
-"BP-S Maternal Nucleotide",
-"BP-S Maternal Vitamin",
-"BP-S Maternal Fatty acid",
-"BP-S Maternal Carbohydrate",
-"MBP Newborn Amino acid",
-"MBP Newborn Glycan",
-"MBP Newborn Vitamin",
+"BP-A Newborn Other_secondary_metabolites",
+"BP-A Newborn Energy",
+"MBP Newborn amino acid",
 "MBP Newborn Carbohydrate",
-"MBP Newborn Fatty acid",
-"MBzP Newborn Glycan",
-"MBzP Newborn Vitamin",
-"MBzP Newborn Amino acid",
-"MBzP Newborn Fatty acid",
-"MBzP Newborn Carbohydrate",
-"MBzP Newborn Nucleotide",
-"MiBP Maternal Amino acid",
-"MiBP Maternal Glycan",
-"MiBP Maternal Carbohydrate",
-"MiBP Maternal Vitamin",
-"MiBP Maternal Nucleotide",
-"MiBP Maternal Fatty acid"
+"MBP Newborn Cofactors_vitamins",
+"MBP Newborn Lipid",
+"MBP Newborn Xenobiotics",
+"MBP Newborn Other_secondary_metabolites",
+"BP-A Maternal Cofactors_vitamins",
+"BP-A Maternal Carbohydrate",
+"BP-A Maternal amino acid",
+"BP-A Maternal Lipid",
+"BP-A Maternal Nucleotide",
+"BP-A Maternal Glycan",
+"BP-A Maternal Energy",
+"BP-A Maternal Other_secondary_metabolites",
+"BP-A Maternal Xenobiotics",
+"BP-S Maternal amino acid",
+"BP-S Maternal Energy",
+"BP-S Maternal Nucleotide",
+"BP-S Maternal Cofactors_vitamins",
+"BP-S Maternal Glycan",
+"BP-S Maternal Lipid",
+"BP-S Maternal Carbohydrate",
+"BP-S Maternal Other_secondary_metabolites"
 ),
       set_size.show = TRUE,
       text.scale = 1.5, point.size = 4, line.size = 1,
       mainbar.y.max = 6,
-      set_size.scale_max = 40,
+      set_size.scale_max = 20,
       mainbar.y.label="No.of pathways \noverlapped across chemical biomarkers",
       sets.x.label="Total no.of \naltered pathways")
 ```
