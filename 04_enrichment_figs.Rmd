@@ -31,7 +31,7 @@ dat <- read_csv("~/Documents/phth_phe_MWAS/result/enrich_results_combined.csv") 
 # Applying the function to your dataset
 dat <- assignGroup(dat, 
                      pathway_column = "pathway", 
-                     pathways = pathways)
+                     pathway_list = pathways)
 ```
 
 #define sequence of the KEGG supergroups
@@ -131,48 +131,73 @@ dat_olap_crazy <- dat |>
   mutate(GenreMember=1) |>
   pivot_wider(names_from = filename, values_from = GenreMember, values_fill = list(GenreMember = 0)) |>
   as.data.frame() |>
-  dplyr::select(`2,5-DCP Newborn Carbohydrate`,
-`2,5-DCP Newborn amino acid`,
-`2,5-DCP Newborn Other_secondary_metabolites`,
-`2,5-DCP Newborn Cofactors_vitamins`,
-`2,5-DCP Newborn Glycan`,
-`2,5-DCP Newborn Nucleotide`,
-`2,5-DCP Newborn Energy`,
-`2,5-DCP Newborn Xenobiotics`,
-`2,5-DCP Newborn Lipid`,
-`BP-A Maternal Cofactors_vitamins`,
-`BP-A Maternal Carbohydrate`,
-`BP-A Maternal amino acid`,
-`BP-A Maternal Lipid`,
-`BP-A Maternal Nucleotide`,
-`BP-A Maternal Glycan`,
-`BP-A Maternal Energy`,
-`BP-A Maternal Other_secondary_metabolites`,
-`BP-A Maternal Xenobiotics`,
-`BP-A Newborn Xenobiotics`,
-`BP-A Newborn Carbohydrate`,
-`BP-A Newborn Lipid`,
-`BP-A Newborn Terpenoids_polyketides`,
-`BP-A Newborn amino acid`,
-`BP-A Newborn Glycan`,
-`BP-A Newborn Cofactors_vitamins`,
-`BP-A Newborn Nucleotide`,
-`BP-A Newborn Other_secondary_metabolites`,
-`BP-A Newborn Energy`,
-`BP-S Maternal amino acid`,
-`BP-S Maternal Energy`,
-`BP-S Maternal Nucleotide`,
-`BP-S Maternal Cofactors_vitamins`,
-`BP-S Maternal Glycan`,
-`BP-S Maternal Lipid`,
-`BP-S Maternal Carbohydrate`,
-`BP-S Maternal Other_secondary_metabolites`,
-`MBP Newborn amino acid`,
-`MBP Newborn Carbohydrate`,
-`MBP Newborn Cofactors_vitamins`,
-`MBP Newborn Lipid`,
-`MBP Newborn Xenobiotics`,
-`MBP Newborn Other_secondary_metabolites`
+  dplyr::select(
+    # 9
+    `2,5-DCP Newborn Carbohydrate`,
+    `2,5-DCP Newborn amino acid`,
+    `2,5-DCP Newborn Lipid`,
+    `2,5-DCP Newborn Cofactors_vitamins`,
+    `2,5-DCP Newborn Glycan`,
+    `2,5-DCP Newborn Nucleotide`,
+    `2,5-DCP Newborn Energy`,
+    `2,5-DCP Newborn Xenobiotics`,
+    `2,5-DCP Newborn Other_secondary_metabolites`,
+    # 10
+    `BP-A Newborn Carbohydrate`,
+    `BP-A Newborn amino acid`,
+    `BP-A Newborn Lipid`,
+    `BP-A Newborn Cofactors_vitamins`,
+    `BP-A Newborn Glycan`,
+    `BP-A Newborn Nucleotide`,
+    `BP-A Newborn Energy`,
+    `BP-A Newborn Xenobiotics`,
+    `BP-A Newborn Other_secondary_metabolites`,
+    `BP-A Newborn Terpenoids_polyketides`,
+    # 6
+    `MBP Newborn Carbohydrate`,
+    `MBP Newborn amino acid`,
+    `MBP Newborn Lipid`,
+    `MBP Newborn Cofactors_vitamins`,
+    `MBP Newborn Xenobiotics`,
+    `MBP Newborn Other_secondary_metabolites`,
+    # 9
+    `MBzP Newborn Carbohydrate`,
+    `MBzP Newborn amino acid`,
+    `MBzP Newborn Lipid`,
+    `MBzP Newborn Cofactors_vitamins`,
+    `MBzP Newborn Glycan`,
+    `MBzP Newborn Nucleotide`,
+    `MBzP Newborn Energy`,
+    `MBzP Newborn Xenobiotics`,
+    `MBzP Newborn Other_secondary_metabolites`,
+    # 9
+    `BP-A Maternal Carbohydrate`,
+    `BP-A Maternal amino acid`,
+    `BP-A Maternal Lipid`,
+    `BP-A Maternal Cofactors_vitamins`,
+    `BP-A Maternal Glycan`,
+    `BP-A Maternal Nucleotide`,
+    `BP-A Maternal Energy`,
+    `BP-A Maternal Xenobiotics`,
+    `BP-A Maternal Other_secondary_metabolites`,
+    # 7
+    `BP-S Maternal Carbohydrate`,
+    `BP-S Maternal amino acid`,
+    `BP-S Maternal Lipid`,
+    `BP-S Maternal Energy`,
+    `BP-S Maternal Nucleotide`,
+    `BP-S Maternal Cofactors_vitamins`,
+    `BP-S Maternal Other_secondary_metabolites`,
+    # 9
+    `MiBP Maternal Carbohydrate`,
+    `MiBP Maternal amino acid`,
+    `MiBP Maternal Lipid`,
+    `MiBP Maternal Cofactors_vitamins`,
+    `MiBP Maternal Glycan`,
+    `MiBP Maternal Nucleotide`,
+    `MiBP Maternal Energy`,
+    `MiBP Maternal Xenobiotics`,
+    `MiBP Maternal Other_secondary_metabolites`
 )
 ```
 
@@ -180,65 +205,111 @@ dat_olap_crazy <- dat |>
 ```{r}
 upset(dat_olap_crazy, 
       keep.order = TRUE,
-      nsets = 4,
+      nsets = 20,
       sets.bar.color = c(
-        rep("#0072B2", 9),
-        rep("#E69F00", 10),
-        rep("#009E73", 6),
-        rep("#56B4E9", 9),#
-        rep("#FFD700", 8)
-        ),
+    rep("#0072B2", 9),       # Blue
+    rep("#E69F00", 10),      # Orange
+    rep("#009E73", 6),       # Green
+    rep("#56B4E9", 9),       # Sky Blue
+    rep("#FFD700", 9),       # Gold/Yellow
+    rep("#008080", 7),       # Teal
+    rep("#FFA500", 9)        # Light Orange
+)
+,
       sets = c("2,5-DCP Newborn Carbohydrate",
 "2,5-DCP Newborn amino acid",
-"2,5-DCP Newborn Other_secondary_metabolites",
+"2,5-DCP Newborn Lipid",
 "2,5-DCP Newborn Cofactors_vitamins",
 "2,5-DCP Newborn Glycan",
 "2,5-DCP Newborn Nucleotide",
 "2,5-DCP Newborn Energy",
 "2,5-DCP Newborn Xenobiotics",
-"2,5-DCP Newborn Lipid",
-"BP-A Newborn Xenobiotics",
+"2,5-DCP Newborn Other_secondary_metabolites",
 "BP-A Newborn Carbohydrate",
-"BP-A Newborn Lipid",
-"BP-A Newborn Terpenoids_polyketides",
 "BP-A Newborn amino acid",
-"BP-A Newborn Glycan",
+"BP-A Newborn Lipid",
 "BP-A Newborn Cofactors_vitamins",
+"BP-A Newborn Glycan",
 "BP-A Newborn Nucleotide",
-"BP-A Newborn Other_secondary_metabolites",
 "BP-A Newborn Energy",
-"MBP Newborn amino acid",
+"BP-A Newborn Xenobiotics",
+"BP-A Newborn Other_secondary_metabolites",
+"BP-A Newborn Terpenoids_polyketides",
 "MBP Newborn Carbohydrate",
-"MBP Newborn Cofactors_vitamins",
+"MBP Newborn amino acid",
 "MBP Newborn Lipid",
+"MBP Newborn Cofactors_vitamins",
 "MBP Newborn Xenobiotics",
 "MBP Newborn Other_secondary_metabolites",
-"BP-A Maternal Cofactors_vitamins",
+"MBzP Newborn Carbohydrate",
+"MBzP Newborn amino acid",
+"MBzP Newborn Lipid",
+"MBzP Newborn Cofactors_vitamins",
+"MBzP Newborn Glycan",
+"MBzP Newborn Nucleotide",
+"MBzP Newborn Energy",
+"MBzP Newborn Xenobiotics",
+"MBzP Newborn Other_secondary_metabolites",
 "BP-A Maternal Carbohydrate",
 "BP-A Maternal amino acid",
 "BP-A Maternal Lipid",
-"BP-A Maternal Nucleotide",
+"BP-A Maternal Cofactors_vitamins",
 "BP-A Maternal Glycan",
+"BP-A Maternal Nucleotide",
 "BP-A Maternal Energy",
-"BP-A Maternal Other_secondary_metabolites",
 "BP-A Maternal Xenobiotics",
+"BP-A Maternal Other_secondary_metabolites",
+"BP-S Maternal Carbohydrate",
 "BP-S Maternal amino acid",
+"BP-S Maternal Lipid",
 "BP-S Maternal Energy",
 "BP-S Maternal Nucleotide",
 "BP-S Maternal Cofactors_vitamins",
-"BP-S Maternal Glycan",
-"BP-S Maternal Lipid",
-"BP-S Maternal Carbohydrate",
-"BP-S Maternal Other_secondary_metabolites"
+"BP-S Maternal Other_secondary_metabolites",
+"MiBP Maternal Carbohydrate",
+"MiBP Maternal amino acid",
+"MiBP Maternal Lipid",
+"MiBP Maternal Cofactors_vitamins",
+"MiBP Maternal Glycan",
+"MiBP Maternal Nucleotide",
+"MiBP Maternal Energy",
+"MiBP Maternal Xenobiotics",
+"MiBP Maternal Other_secondary_metabolites"
 ),
       set_size.show = TRUE,
-      text.scale = 1.5, point.size = 4, line.size = 1,
-      mainbar.y.max = 6,
+      text.scale = 1.3, point.size = 3, line.size = 1,
+      mainbar.y.max = 3,
       set_size.scale_max = 20,
       mainbar.y.label="No.of pathways \noverlapped across chemical biomarkers",
       sets.x.label="Total no.of \naltered pathways")
 ```
 
+#overlapping pathwats content for text
+```{r}
+filename_values_of_interest <- c("BP-A Newborn", "BP-A Maternal")
+
+x_tab <- dat |>
+  unite(filename, chemical, mom_baby, sep = " ") |>
+  select(pathway, filename, group) |>
+  filter(filename %in% filename_values_of_interest) |>
+  group_by(group, pathway) |>
+  summarise(filename_count = n()) |>
+  filter(filename_count == length(filename_values_of_interest)) |>
+  group_by(group) |>
+  summarise(total_common_pathways = n(),
+            common_pathways = paste(pathway, collapse = ", "))
+
+
+# Print the total common pathways
+cat("Total Common Pathways: ", sum(x_tab$total_common_pathways), "\n\n")
+
+# Print the result for each group
+for (grp in x_tab$group) {
+  cat("Group Name: ", grp, "\n")
+  cat("Total Common Pathways: ", x_tab$total_common_pathways[x_tab$group == grp], "\n")
+  cat("Common Pathways:\n", x_tab$common_pathways[x_tab$group == grp], "\n\n")
+}
+```
 
 
 
