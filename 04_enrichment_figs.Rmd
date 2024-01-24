@@ -46,11 +46,11 @@ dat$group<- factor(dat$group, levels = c( "amino acid", "Carbohydrate",
 
 #pathway heatmap - Plot
 ```{r}
+#choose either line 51 or 52
 dat|>
-  ggplot(aes(x = factor(chemical, levels = c("2,5-DCP", 
-                                             "BP-A", "BP-S",
-                                             "MBP", "MiBP", "MBzP")), 
-             y = pathway)) + 
+  #ggplot(aes(x = factor(chemical, levels = c("2,5-DCP", "BP-A", "BP-S", "MBP", "MiBP", "MBzP")), y = pathway)) + 
+  ggplot(aes(x = factor(chemical, levels = c("2,4-DCP", "2,5-DCP", "BP-3", "BP-A", "BP-S", 
+                                              "MEP", "MBP", "MiBP","MBzP", "MONP", "MCOP", "mCNP")), y = pathway)) + 
   geom_tile(aes(fill = factor(enrichment_disc)), color = "black") +
   scale_color_viridis(discrete = TRUE) +
   xlab("") +
@@ -69,7 +69,7 @@ dat|>
         panel.grid.minor = element_blank(),
         panel.grid.major = element_blank(),
         panel.grid.major.y = element_blank(),
-        axis.text.x = element_text(angle = 0, hjust = 0.5, vjust = 1, size = 10),
+        axis.text.x = element_text(angle = 45, hjust = 1, vjust = 1, size = 10),
         axis.text.y = element_text(size = 10), 
         panel.spacing.x=unit(0.8, "lines"),
         panel.spacing.y=unit(0.02, "lines"),
@@ -81,8 +81,8 @@ dat|>
 ```
 
 ```{r}
-ggsave("~/Documents/phth_phe_MWAS/result/pathway_enrich.tiff", 
-       width = 8, height = 14, dpi=300)
+ggsave("~/Documents/phth_phe_MWAS/result/pathway_enrich_all.tiff", 
+       width = 16, height = 18, dpi=300)
 ```
 
 #Pathway overlap plots - data prep
