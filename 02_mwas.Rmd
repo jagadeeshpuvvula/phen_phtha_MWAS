@@ -100,6 +100,20 @@ mwas_viz <- data_combined %>%
 write_csv(mwas_viz, paste0(result, "lm_mwas/lm_results_combined.csv"))
 ```
 
+#renaming exposure variables
+```{r}
+mwas_viz<- read_csv(paste0(result, "lm_mwas/lm_results_combined.csv")) |>
+  mutate(variable = fct_recode(variable, 
+                               "BPA" = "BP-A", 
+                               "BPS" = "BP-S",
+                               "MCNP" = "mCNP",
+                               "2,4-Dichlorophenol" = "2,4-DCP",
+                               "2,5-Dichlorophenol" = "2,5-DCP",
+                               "Benzophenone-3" = "BP-3")) |>
+  mutate(variable = factor(variable, levels = c("MEP", "MBP", "MiBP", "MBzP", "MONP", "MCOP", "MCNP", "2,4-Dichlorophenol", "2,5-Dichlorophenol", "BPA", "BPS", "Benzophenone-3")))
+```
+
+
 ```{r}
 ggplot(mwas_viz, aes(x = estimate, y = -log10(pr_t), color = fdr_beta_dir)) +
   geom_point(size = 0.25) +
@@ -116,7 +130,7 @@ ggplot(mwas_viz, aes(x = estimate, y = -log10(pr_t), color = fdr_beta_dir)) +
         legend.box = "horizontal",
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.25),
         strip.background = element_blank(),
-        strip.text = element_text(size=11, face = "bold"),
+        strip.text = element_text(size=8, face = "bold", angle = 0, hjust = 0, vjust = 0),
         panel.spacing = unit(0.05, "lines"),
         strip.placement = "outside") + 
   labs(color = "Beta direction") +
