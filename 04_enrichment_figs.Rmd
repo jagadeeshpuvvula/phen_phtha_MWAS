@@ -98,7 +98,7 @@ dat_olap <- dat |>
   mutate(GenreMember=1) |>
   pivot_wider(names_from = filename, values_from = GenreMember, values_fill = list(GenreMember = 0)) |>
   as.data.frame() |>
-  dplyr::select(`2,5-DCP Newborn`, 
+  dplyr::select(`2,5-Dichlorophenol Newborn`, 
                 `BPA Newborn`, 
                 `MBP Newborn`, 
                 `MBzP Newborn`,
@@ -114,7 +114,7 @@ upset(dat_olap,
       keep.order = TRUE,
       nsets = 5,
       sets.bar.color = c("#0072B2", "#0072B2", "#0072B2", "#0072B2", "#E69F00", "#E69F00", "#E69F00"),
-      sets = c("2,5-DCP Newborn", "BPA Newborn", "MBP Newborn", "MBzP Newborn", "BPA Maternal", "BPS Maternal", "MiBP Maternal"),
+      sets = c("2,5-Dichlorophenol Newborn", "BPA Newborn", "MBP Newborn", "MBzP Newborn", "BPA Maternal", "BPS Maternal", "MiBP Maternal"),
       set_size.show = TRUE,
       text.scale = 1.5, point.size = 4, line.size = 1,
       mainbar.y.max = 8,
@@ -137,15 +137,15 @@ dat_olap_crazy <- dat |>
   as.data.frame() |>
   dplyr::select(
     # 9
-    `2,5-DCP Newborn Carbohydrate`,
-    `2,5-DCP Newborn amino acid`,
-    `2,5-DCP Newborn Lipid`,
-    `2,5-DCP Newborn Cofactors_vitamins`,
-    `2,5-DCP Newborn Glycan`,
-    `2,5-DCP Newborn Nucleotide`,
-    `2,5-DCP Newborn Energy`,
-    `2,5-DCP Newborn Xenobiotics`,
-    `2,5-DCP Newborn Other_secondary_metabolites`,
+    `2,5-Dichlorophenol Newborn Carbohydrate`,
+    `2,5-Dichlorophenol Newborn amino acid`,
+    `2,5-Dichlorophenol Newborn Lipid`,
+    `2,5-Dichlorophenol Newborn Cofactors_vitamins`,
+    `2,5-Dichlorophenol Newborn Glycan`,
+    `2,5-Dichlorophenol Newborn Nucleotide`,
+    `2,5-Dichlorophenol Newborn Energy`,
+    `2,5-Dichlorophenol Newborn Xenobiotics`,
+    `2,5-Dichlorophenol Newborn Other_secondary_metabolites`,
     # 10
     `BPA Newborn Carbohydrate`,
     `BPA Newborn amino acid`,
