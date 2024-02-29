@@ -3,7 +3,7 @@ pathways = list(
     "Glycolysis", "Gluconeogenesis", "Citrate cycle", "TCA cycle", "Pentose phosphate", "Pentose", "glucuronate",
     "Fructose", "mannose", "Galactose", "Ascorbate", "aldarate", "Starch", "sucrose",
     "Amino sugar", "nucleotide sugar", "Pyruvate", "Glyoxylate","dicarboxylate", "Propanoate ",
-    "Butanoate", "C5-Branched", "Inositol phosphate"
+    "Butanoate", "C5-Branched", "Inositol phosphate", "Lipoate"
   ),
   `Energy` = c(
     "Oxidative phosphorylation", "Photosynthesis", "Photosynthesis - antenna proteins", "Carbon fixation",
@@ -13,7 +13,9 @@ pathways = list(
     "Fatty acid", "Fatty acid elongation", "Cutin, suberine and wax",
     "Steroid", "Primary bile acid", "Secondary bile acid", "Steroid hormone",
     "Glycerolipid", "Glycerophospholipid", "Ether lipid", "Sphingolipid",
-    "Arachidonic acid", "Linoleic acid", "alpha-Linolenic acid", "unsaturated fatty acids"
+    "Arachidonic acid", "Linoleic acid", "alpha-Linolenic acid", "unsaturated fatty acids",
+    "Leukotriene", "Carnitine shuttle", "Leukotriene", "Prostaglandin formation from arachidonate",
+    "Linoleate", "Bile acid biosynthesis"
   ),
   `Nucleotide` = c(
     "Purine", "Pyrimidine"
@@ -27,20 +29,24 @@ pathways = list(
     "Tryptophan", "Phenylalanine", "tyrosine", "tryptophan",
     "beta-Alanine", "Taurine", "hypotaurine",
     "Phosphonate", "phosphinate", "Selenocompound",
-    "Cyanoamino", "D-Amino", "Glutathione"
+    "Cyanoamino", "D-Amino", "Glutathione", "Selenoamino", 
+    "Sialic acid"
   ),
   `Glycan` = c(
     "N-Glycan", "O-glycan", "Glycosaminoglycan",
     "Glycosphingolipid",
     "Lipopolysaccharide", "O-Antigen", "Peptidoglycan", "Teichoic",
-    "Lipoarabinomannan", "Arabinogalactan", "Exopolysaccharide "
+    "Lipoarabinomannan", "Arabinogalactan", "Exopolysaccharide ",
+    "Blood Group Biosynthesis", "Glycosylphosphatidylinositol(GPI)-anchor biosynthesis",
+    "Chondroitin sulfate degradation", "Heparan sulfate degradation",
+    "Keratan sulfate degradation", "Keratan sulfate biosynthesis"
   ),
   `Cofactors_vitamins` = c(
     "Thiamine", "Riboflavin", "Vitamin B6",
     "Nicotinate and nicotinamide", "Pantothenate", "CoA",
     "Biotin", "Lipoic", "Folate",
     "One carbon pool by folate", "Retinol ", "Porphyrin",
-    "Ubiquinone", "terpenoid-quinone ", "vitamin"
+    "Ubiquinone", "terpenoid-quinone ", "vitamin", "Biopterin"
   )
   ,
   `Terpenoids_polyketides` = c(
@@ -93,7 +99,8 @@ pathways = list(
     "Ethylbenzene", "Styrene", "Atrazine", "Caprolactam",
     "Bisphenol", "Dioxin", "Naphthalene",
     "Polycyclic aromatic hydrocarbon", "Furfural", "Steroid",
-    "xenobiotics", "Drug"
+    "xenobiotics", "Drug", "Benzoate degradation via CoA ligation",
+    "Parathio degradation"
   ),
   `Chemical_structure_transformation_maps` = c(
     "plant secondary metabolites", "phenylpropanoids",
@@ -101,6 +108,10 @@ pathways = list(
     "alkaloids derived from ornithine, nicotinic acid",
     "alkaloids derived from histidine and purine", "alkaloids derived from terpenoid and polyketide",
     "plant hormones"
-  )
+  ),
+  `NA` = c("Heparan sulfate degradation", "Keratan sulfate degradation", "Prostaglandin formation from arachidonate",
+           "Putative anti-Inflammatory metabolites formation from EPA", "Hexose phosphorylation",
+           "Phytanic acid peroxisomal oxidation", "D4&E4-neuroprostanes formation",
+           "Hyaluronan Metabolism", "Electron transport chain")
 )
 

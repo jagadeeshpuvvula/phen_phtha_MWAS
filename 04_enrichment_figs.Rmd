@@ -7,27 +7,30 @@ output: pdf_document
 
 #read merged pathway analysis results
 ```{r}
-dat <- read_csv("~/Documents/phth_phe_MWAS/result/enrich_results_combined.csv") |>
+dat <- read_csv("~/Documents/phth_phe_MWAS/result/enrich_results_combined_march.csv") |>
   clean_names() |>
   rename(p_gamma = "gamma", 
          pathway = "x") |>
   filter(p_gamma < 0.05) |>
   mutate(logp = -log10(p_gamma), enrichment = hits_sig/expected) |>
-  mutate(enrichment_disc = cut(enrichment, breaks = seq(0, 16, by = 2), 
+  mutate(enrichment_disc = cut(enrichment, breaks = seq(0, 18, by = 2), 
                                  labels = c("< 2", "2 - <4", "4 - <6",
-                                            "6 - <8", "8 - <10", "10 - <12", "12 - <14", "14 - <16"))) |>
-  filter(pathway_total > 3) |>
-  filter((chemical == "BP-A" & mom_baby %in% c("Maternal", "Newborn")) |
-         (chemical == "BP-S" & mom_baby == "Maternal") |
-         (chemical == "2,5-DCP" & mom_baby == "Newborn") |
-         (chemical == "MBP" & mom_baby == "Newborn") |
-         (chemical == "MiBP" & mom_baby == "Maternal") |
-         (chemical == "MBzP" & mom_baby == "Newborn")
-         ) |>
+                                            "6 - <8", "8 - <10", "10 - <12", "12 - <14", "14 - <16", "16 - <17"))) |>
+  filter(pathway_total > 3)  |>
   mutate(chemical = fct_recode(chemical, 
                                "BPA" = "BP-A", 
                                "BPS" = "BP-S",
-                               "2,5-Dichlorophenol" = "2,5-DCP")) 
+                               "2,5-Dichlorophenol" = "2,5-DCP",
+                               "2,4-Dichlorophenol" = "2,4-DCP", "Benzophenone-3" = "BP-3", "MCNP" = "mCNP")) |>
+  filter((chemical == "BPA" & mom_baby %in% c("Maternal", "Newborn")) |
+         (chemical == "BPS" & mom_baby == "Maternal") |
+         (chemical == "2,5-Dichlorophenol" & mom_baby == "Newborn") |
+         (chemical == "MBP" & mom_baby == "Newborn") |
+         (chemical == "MiBP" & mom_baby == "Maternal") |
+         (chemical == "MBzP" & mom_baby == "Newborn") |
+           (chemical == "MECPTP" & mom_baby == "Maternal") | 
+           (chemical == "MEHHTP" & mom_baby == "Maternal")
+         )
 ```
 
 #add KEGG supergroups to the pathway analysis results
@@ -45,15 +48,20 @@ dat$group<- factor(dat$group, levels = c( "amino acid", "Carbohydrate",
                                           "Cofactors_vitamins",
                                           "Energy",
                                           "Nucleotide", "Other_secondary_metabolites", "Terpenoids_polyketides",
-                                          "Xenobiotics", "other"))
+                                          "Xenobiotics", "NA"))
 ```
+
+```{r}
+dat_grp_check<- dat |> select(c(1,17)) |> distinct()
+```
+
 
 #pathway heatmap - Plot
 ```{r}
 #choose either line 51 or 52
 dat|>
-  #ggplot(aes(x = factor(chemical, levels = c("MBP", "MiBP", "MBzP",  "2,5-Dichlorophenol", "BPA", "BPS")), y = pathway)) + 
-  ggplot(aes(x = factor(chemical, levels = c("MEP", "MBP", "MiBP", "MBzP", "MONP", "MCOP", "MCNP", "2,4-Dichlorophenol", "2,5-Dichlorophenol", "BPA", "BPS", "Benzophenone-3")), y = pathway)) + 
+  #ggplot(aes(x = factor(chemical, levels = c("MBP", "MiBP", "MBzP", "MECPTP", "MEHHTP", "2,5-Dichlorophenol", "BPA", "BPS")), y = pathway)) + 
+  ggplot(aes(x = factor(chemical, levels = c("MEP", "MBP", "MiBP", "MBzP", "MONP", "MCOP", "MCNP", "MECPTP", "MEHHTP", "2,4-Dichlorophenol", "2,5-Dichlorophenol", "BPA", "BPS", "Benzophenone-3")), y = pathway)) + 
   geom_tile(aes(fill = factor(enrichment_disc)), color = "black") +
   scale_color_viridis(discrete = TRUE) +
   xlab("") +
@@ -104,7 +112,9 @@ dat_olap <- dat |>
                 `MBzP Newborn`,
                 `BPA Maternal`, 
                 `BPS Maternal`, 
-                `MiBP Maternal`)
+                `MiBP Maternal`,
+                `MECPTP Maternal`,
+                `MEHHTP Maternal`)
 ```
 
 #overlap plots
@@ -113,8 +123,8 @@ upset(dat_olap,
       nintersects = 1500,
       keep.order = TRUE,
       nsets = 5,
-      sets.bar.color = c("#0072B2", "#0072B2", "#0072B2", "#0072B2", "#E69F00", "#E69F00", "#E69F00"),
-      sets = c("2,5-Dichlorophenol Newborn", "BPA Newborn", "MBP Newborn", "MBzP Newborn", "BPA Maternal", "BPS Maternal", "MiBP Maternal"),
+      sets.bar.color = c("#0072B2", "#0072B2", "#0072B2", "#0072B2", "#E69F00", "#E69F00", "#E69F00", "#E69F00", "#E69F00"),
+      sets = c("2,5-Dichlorophenol Newborn", "BPA Newborn", "MBP Newborn", "MBzP Newborn", "BPA Maternal", "BPS Maternal", "MiBP Maternal", "MECPTP Maternal", "MEHHTP Maternal"),
       set_size.show = TRUE,
       text.scale = 1.5, point.size = 4, line.size = 1,
       mainbar.y.max = 8,
@@ -136,6 +146,7 @@ dat_olap_crazy <- dat |>
   pivot_wider(names_from = filename, values_from = GenreMember, values_fill = list(GenreMember = 0)) |>
   as.data.frame() |>
   dplyr::select(
+    #pathway,
     # 9
     `2,5-Dichlorophenol Newborn Carbohydrate`,
     `2,5-Dichlorophenol Newborn amino acid`,
@@ -199,9 +210,28 @@ dat_olap_crazy <- dat |>
     `MiBP Maternal Cofactors_vitamins`,
     `MiBP Maternal Glycan`,
     `MiBP Maternal Nucleotide`,
-    `MiBP Maternal Energy`,
     `MiBP Maternal Xenobiotics`,
-    `MiBP Maternal Other_secondary_metabolites`
+    `MiBP Maternal Other_secondary_metabolites`,
+    #10
+    `MECPTP Maternal Carbohydrate`,
+    `MECPTP Maternal amino acid`,
+    `MECPTP Maternal Lipid`,
+    `MECPTP Maternal Cofactors_vitamins`,
+    `MECPTP Maternal Glycan`,
+    `MECPTP Maternal Nucleotide`,
+    `MECPTP Maternal Energy`,
+    `MECPTP Maternal Xenobiotics`,
+    `MECPTP Maternal Other_secondary_metabolites`,
+    #11
+    `MEHHTP Maternal Carbohydrate`,
+    `MEHHTP Maternal amino acid`,
+    `MEHHTP Maternal Lipid`,
+    `MEHHTP Maternal Cofactors_vitamins`,
+    `MEHHTP Maternal Glycan`,
+    `MEHHTP Maternal Nucleotide`,
+    `MEHHTP Maternal Energy`,
+    `MEHHTP Maternal Xenobiotics`,
+    `MEHHTP Maternal Other_secondary_metabolites`
 )
 ```
 
@@ -217,34 +247,39 @@ upset(dat_olap_crazy,
     rep("#56B4E9", 9),       # Sky Blue
     rep("#FFD700", 9),       # Gold/Yellow
     rep("#008080", 7),       # Teal
-    rep("#FFA500", 9)        # Light Orange
+    rep("#FFA500", 8),        # Light Orange
+    rep("#AFA600", 9),        # Light Orange
+    rep("#CFA600", 9)        # Light Orange
 )
 ,
-      sets = c("2,5-DCP Newborn Carbohydrate",
-"2,5-DCP Newborn amino acid",
-"2,5-DCP Newborn Lipid",
-"2,5-DCP Newborn Cofactors_vitamins",
-"2,5-DCP Newborn Glycan",
-"2,5-DCP Newborn Nucleotide",
-"2,5-DCP Newborn Energy",
-"2,5-DCP Newborn Xenobiotics",
-"2,5-DCP Newborn Other_secondary_metabolites",
-"BP-A Newborn Carbohydrate",
-"BP-A Newborn amino acid",
-"BP-A Newborn Lipid",
-"BP-A Newborn Cofactors_vitamins",
-"BP-A Newborn Glycan",
-"BP-A Newborn Nucleotide",
-"BP-A Newborn Energy",
-"BP-A Newborn Xenobiotics",
-"BP-A Newborn Other_secondary_metabolites",
-"BP-A Newborn Terpenoids_polyketides",
+      sets = c("2,5-Dichlorophenol Newborn Carbohydrate",
+"2,5-Dichlorophenol Newborn amino acid",
+"2,5-Dichlorophenol Newborn Lipid",
+"2,5-Dichlorophenol Newborn Cofactors_vitamins",
+"2,5-Dichlorophenol Newborn Glycan",
+"2,5-Dichlorophenol Newborn Nucleotide",
+"2,5-Dichlorophenol Newborn Energy",
+"2,5-Dichlorophenol Newborn Xenobiotics",
+"2,5-Dichlorophenol Newborn Other_secondary_metabolites",
+# 10
+"BPA Newborn Carbohydrate",
+"BPA Newborn amino acid",
+"BPA Newborn Lipid",
+"BPA Newborn Cofactors_vitamins",
+"BPA Newborn Glycan",
+"BPA Newborn Nucleotide",
+"BPA Newborn Energy",
+"BPA Newborn Xenobiotics",
+"BPA Newborn Other_secondary_metabolites",
+"BPA Newborn Terpenoids_polyketides",
+# 6
 "MBP Newborn Carbohydrate",
 "MBP Newborn amino acid",
 "MBP Newborn Lipid",
 "MBP Newborn Cofactors_vitamins",
 "MBP Newborn Xenobiotics",
 "MBP Newborn Other_secondary_metabolites",
+# 9
 "MBzP Newborn Carbohydrate",
 "MBzP Newborn amino acid",
 "MBzP Newborn Lipid",
@@ -254,31 +289,53 @@ upset(dat_olap_crazy,
 "MBzP Newborn Energy",
 "MBzP Newborn Xenobiotics",
 "MBzP Newborn Other_secondary_metabolites",
-"BP-A Maternal Carbohydrate",
-"BP-A Maternal amino acid",
-"BP-A Maternal Lipid",
-"BP-A Maternal Cofactors_vitamins",
-"BP-A Maternal Glycan",
-"BP-A Maternal Nucleotide",
-"BP-A Maternal Energy",
-"BP-A Maternal Xenobiotics",
-"BP-A Maternal Other_secondary_metabolites",
-"BP-S Maternal Carbohydrate",
-"BP-S Maternal amino acid",
-"BP-S Maternal Lipid",
-"BP-S Maternal Energy",
-"BP-S Maternal Nucleotide",
-"BP-S Maternal Cofactors_vitamins",
-"BP-S Maternal Other_secondary_metabolites",
+# 9
+"BPA Maternal Carbohydrate",
+"BPA Maternal amino acid",
+"BPA Maternal Lipid",
+"BPA Maternal Cofactors_vitamins",
+"BPA Maternal Glycan",
+"BPA Maternal Nucleotide",
+"BPA Maternal Energy",
+"BPA Maternal Xenobiotics",
+"BPA Maternal Other_secondary_metabolites",
+# 7
+"BPS Maternal Carbohydrate",
+"BPS Maternal amino acid",
+"BPS Maternal Lipid",
+"BPS Maternal Energy",
+"BPS Maternal Nucleotide",
+"BPS Maternal Cofactors_vitamins",
+"BPS Maternal Other_secondary_metabolites",
+# 8
 "MiBP Maternal Carbohydrate",
 "MiBP Maternal amino acid",
 "MiBP Maternal Lipid",
 "MiBP Maternal Cofactors_vitamins",
 "MiBP Maternal Glycan",
 "MiBP Maternal Nucleotide",
-"MiBP Maternal Energy",
 "MiBP Maternal Xenobiotics",
-"MiBP Maternal Other_secondary_metabolites"
+"MiBP Maternal Other_secondary_metabolites",
+#9
+"MECPTP Maternal Carbohydrate",
+"MECPTP Maternal amino acid",
+"MECPTP Maternal Lipid",
+"MECPTP Maternal Cofactors_vitamins",
+"MECPTP Maternal Glycan",
+"MECPTP Maternal Nucleotide",
+"MECPTP Maternal Energy",
+"MECPTP Maternal Xenobiotics",
+"MECPTP Maternal Other_secondary_metabolites",
+#9
+"MEHHTP Maternal Carbohydrate",
+"MEHHTP Maternal amino acid",
+"MEHHTP Maternal Lipid",
+"MEHHTP Maternal Cofactors_vitamins",
+"MEHHTP Maternal Glycan",
+"MEHHTP Maternal Nucleotide",
+"MEHHTP Maternal Energy",
+"MEHHTP Maternal Xenobiotics",
+"MEHHTP Maternal Other_secondary_metabolites"
 ),
       set_size.show = TRUE,
       text.scale = 1.3, point.size = 3, line.size = 1,
@@ -290,19 +347,27 @@ upset(dat_olap_crazy,
 
 #overlapping pathwats content for text
 ```{r}
-filename_values_of_interest <- c("BP-A Newborn", "BP-A Maternal")
+dat_olap_tbl<- dat |> select(c(1,12,13,17)) |> unite(filename, chemical, mom_baby, sep = "_") |>
+  group_by(filename, group) |>
+  summarise(pathway = paste(pathway, collapse = ', '), count = n()) |>
+  ungroup()
+
+filename_values_of_interest <- c("2,5-Dichlorophenol Newborn", "BPA Newborn")
+filename_values_of_interest<- c("MiBP Maternal", "MEHHTP Maternal")
+filename_values_of_interest <- c("BPA Maternal", "BPA Newborn")
 
 x_tab <- dat |>
   unite(filename, chemical, mom_baby, sep = " ") |>
   select(pathway, filename, group) |>
   filter(filename %in% filename_values_of_interest) |>
-  group_by(group, pathway) |>
+  group_by(group, pathway) |> #
   summarise(filename_count = n()) |>
   filter(filename_count == length(filename_values_of_interest)) |>
   group_by(group) |>
   summarise(total_common_pathways = n(),
             common_pathways = paste(pathway, collapse = ", "))
 
+sum(x_tab$total_common_pathways)
 
 # Print the total common pathways
 cat("Total Common Pathways: ", sum(x_tab$total_common_pathways), "\n\n")

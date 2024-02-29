@@ -72,11 +72,13 @@ mwas_viz <- data_combined %>%
   filter(variable %in% c("x24_dcp", "x25_dcp", "bp_3", "bpa", "bps", 
                          "m_ep", "m_bp", "mi_bp", "m_bz_p",
                          "monp", "m_cop",
-                         "m_cnp")) |>
+                         "m_cnp",
+                         "mecptp", "mehhtp")) |>
   mutate(variable = factor(variable, levels = c("x24_dcp", "x25_dcp", "bp_3", "bpa", "bps", 
                                                 "m_ep", "m_bp", "mi_bp", "m_bz_p",
                                                 "monp", "m_cop",
-                                                "m_cnp")),
+                                                "m_cnp",
+                                                "mecptp", "mehhtp")),
          variable = fct_recode(variable,
                                `2,4-DCP` = "x24_dcp",
                                `2,5-DCP` = "x25_dcp",
@@ -89,7 +91,9 @@ mwas_viz <- data_combined %>%
                                `MBzP` = "m_bz_p",
                                `MONP` = "monp",
                                `MCOP` = "m_cop",
-                               `mCNP` = "m_cnp"),
+                               `mCNP` = "m_cnp",
+                               `MECPTP` = "mecptp",
+                               `MEHHTP` = "mehhtp"),
          set = fct_recode(set, `Maternal`="mom", `Newborn`="newborn"),
          fdr_beta_dir = case_when(
            fdr < 0.2 & estimate > 0 ~ "positive-significant",
@@ -110,7 +114,7 @@ mwas_viz<- read_csv(paste0(result, "lm_mwas/lm_results_combined.csv")) |>
                                "2,4-Dichlorophenol" = "2,4-DCP",
                                "2,5-Dichlorophenol" = "2,5-DCP",
                                "Benzophenone-3" = "BP-3")) |>
-  mutate(variable = factor(variable, levels = c("MEP", "MBP", "MiBP", "MBzP", "MONP", "MCOP", "MCNP", "2,4-Dichlorophenol", "2,5-Dichlorophenol", "BPA", "BPS", "Benzophenone-3")))
+  mutate(variable = factor(variable, levels = c("MEP", "MBP", "MiBP", "MBzP", "MONP", "MCOP", "MCNP", "MECPTP", "MEHHTP", "2,4-Dichlorophenol", "2,5-Dichlorophenol", "BPA", "BPS", "Benzophenone-3")))
 ```
 
 

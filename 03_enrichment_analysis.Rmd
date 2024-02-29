@@ -16,7 +16,7 @@ dat<- read_csv(paste0(result, "lm_mwas/lm_results_combined.csv")) |>
 ```{r}
 split_and_export(data= dat,
                  variables = c("variable", "set"),
-                 export_location = "~/Documents/phth_phe_MWAS/result/enrich_exp/")
+                 export_location = "~/Documents/phth_phe_MWAS/result/enrich_exp")
 ```
 
 ```{r}
@@ -47,9 +47,15 @@ runMummichog(input_folder= "~/Documents/phth_phe_MWAS/result/enrich_exp",
 #https://omicsforum.ca/t/which-p-value-from-mummichog/2036
 ```{r}
 enrich_data <- combine_csv_files("~/Documents/phth_phe_MWAS/result/enrich_imp")
-write_csv(enrich_data, "~/Documents/phth_phe_MWAS/result/enrich_results_combined.csv")
+write_csv(enrich_data, "~/Documents/phth_phe_MWAS/result/enrich_results_combined_march.csv")
 ```
 
+#manually check p-values
+```{r}
+folder_path <- "~/Documents/phth_phe_MWAS/result/enrich_imp/"
+file_list <- list.files(path = folder_path, pattern = "\\.txt$", full.names = TRUE)
 
+get_500th_smallest_pvalue(file_list)
+```
 
 
