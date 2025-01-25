@@ -1,4 +1,4 @@
-# 
+## Puvvula J, Song LC, Zalewska KJ, Alexander A, Manz KE, Braun JM, Pennell KD, DeFranco EA, Ho SM, Leung YK, Huang S, Vuong AM, Kim SS, Percy Z, Bhashyam P, Lee R, Jones DP, Tran V, Calafat AM, Botelho JC, Chen A. Global metabolomic alterations associated with endocrine-disrupting chemicals among pregnant individuals and newborns. Metabolomics. 2025;21(20). https://doi.org/10.1007/s11306-024-02219-7 
 
 # Workflow environment
 
